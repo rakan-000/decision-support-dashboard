@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "node:path";
 
 const nextConfig: NextConfig = {
   // Native / heavy node-only packages must not be bundled by Turbopack.
@@ -12,6 +13,14 @@ const nextConfig: NextConfig = {
     "@anthropic-ai/sdk",
     "pptxgenjs",
   ],
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@": path.resolve(process.cwd(), "src"),
+    };
+
+    return config;
+  },
 };
 
 export default nextConfig;
