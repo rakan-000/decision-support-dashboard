@@ -146,6 +146,22 @@ The UI is designed as a secure executive intelligence terminal:
 
 ## Deployment Notes
 
+For the current real working MVP, deploy to a server platform with persistent storage, such as Railway.
+
+Recommended deployment path:
+
+- Railway app connected to this GitHub repository.
+- Persistent volume mounted to `/data`.
+- `DATABASE_URL=/data/app.db`.
+- `STORAGE_DIR=/data/uploads`.
+- `ANTHROPIC_API_KEY` configured for real Claude analysis.
+
+See:
+
+```text
+docs/DEPLOYMENT.md
+```
+
 The current MVP uses SQLite and local storage. The architecture is prepared for future enterprise deployment:
 
 - SQLite can be replaced by PostgreSQL.
