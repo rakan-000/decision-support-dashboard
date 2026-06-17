@@ -30,12 +30,27 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files (real secrets only; the template .env.example IS tracked)
+.env
+.env.*
+!.env.example
 
 # vercel
 .vercel
 
+# local assistant / preview configuration
+.claude/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Environment
+.env.local
+.env*.local
+
+# Private storage and local database
+/storage/uploads/*
+!/storage/uploads/.gitkeep
+/data/*.db
+/data/*.db-*
