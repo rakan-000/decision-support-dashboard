@@ -28,6 +28,10 @@ OPERATING RULES (non-negotiable):
 6. Scores (confidence, compliance, governance) are integers from 0 to 100 and must reflect the actual evidence density and alignment with internal policy, not optimism.
 7. Use English (Latin) numerals only in all output (e.g. 2026, 85%, 1,250). Never use Arabic-Indic numerals.
 8. Do not use emojis anywhere.
+9. All user-facing narrative content MUST be written in executive Modern Standard Arabic. This includes executiveSummary, keyInsights titles/details, risks, governanceReview, complianceReview, gapAnalysis, rootCauseAnalysis, SWOT/PESTEL entries, KPI opportunities, recommendations, executiveActions, evidence explanations, and missing-information explanations.
+10. Keep only schema enum values in English exactly as required by the JSON contract, such as "critical", "high", "medium", "low", "specific", "general", and "insufficient_evidence".
+11. Department names in narrative text should use Arabic names. Use the department code only in departmentClassification.
+12. The exact insufficient-evidence literal must remain "${INSUFFICIENT_EVIDENCE}" when required by the schema, but the surrounding explanation must be Arabic.
 
 OUTPUT CONTRACT:
 Respond with a SINGLE valid JSON object and nothing else — no markdown fences, no commentary before or after. The JSON must match exactly this shape:
@@ -71,5 +75,5 @@ Detected dates: ${classification.dates.join(", ") || "none"}
 ${text}
 
 [TASK]
-Analyze the document above as an executive decision-support artifact for the Saudi nonprofit Shared Services context. Produce the full JSON analysis per the output contract. Ground every recommendation in evidence quoted from the document; where evidence is missing, use "${INSUFFICIENT_EVIDENCE}".`;
+Analyze the document above as an executive decision-support artifact for the Saudi nonprofit Shared Services context. Produce the full JSON analysis per the output contract. Write all narrative values in Arabic. Ground every recommendation in evidence quoted from the document; where evidence is missing, use "${INSUFFICIENT_EVIDENCE}".`;
 }

@@ -29,63 +29,63 @@ export function demoAnalysis({
   kbSources?: KbSourceRef[];
 }): Analysis {
   const words = text.trim().length ? text.trim().split(/\s+/).length : 0;
-  const deptEn = departmentName(classification.departmentCode, "en");
+  const deptAr = departmentName(classification.departmentCode, "ar");
   const datesNote =
     classification.dates.length > 0
-      ? `Detected dates: ${classification.dates.join(", ")}.`
-      : "No structured dates were detected in the document.";
+      ? `تم رصد تواريخ داخل الوثيقة: ${classification.dates.join(", ")}.`
+      : "لم يتم رصد تواريخ منظمة داخل الوثيقة.";
 
   const kbNote =
     kbSources.length > 0
-      ? `Retrieved ${kbSources.length.toLocaleString(
+      ? `تم استرجاع ${kbSources.length.toLocaleString(
           "en-US",
-        )} relevant internal knowledge base document(s): ${kbSources
+        )} مصدر داخلي ذي صلة من قاعدة المعرفة: ${kbSources
           .map((s) => s.title)
-          .join(", ")}. A connected AI provider will assess this document against them.`
-      : "No internal knowledge base documents were matched. Index policies, procedures, and governance manuals in the Knowledge Base to enable grounded review.";
+          .join(", ")}. عند تفعيل مزود الذكاء الاصطناعي سيتم تقييم الوثيقة مقابل هذه المصادر.`
+      : "لم تتم مطابقة مصادر داخلية من قاعدة المعرفة. أضف السياسات والإجراءات وأدلة الحوكمة إلى قاعدة المعرفة لتمكين مراجعة مستندة إلى مصادر داخلية.";
 
   return {
     executiveSummary:
-      `This is a demonstration analysis generated without a connected AI provider. ` +
-      `The document "${filename}" was read and classified locally. It contains approximately ` +
-      `${words.toLocaleString("en-US")} words and was associated with the ${deptEn} department. ` +
-      `${datesNote} Connect an Anthropic API key to produce a full, evidence-based executive analysis.`,
+      `هذا تحليل تجريبي تم إنشاؤه دون اتصال بمزود ذكاء اصطناعي خارجي. ` +
+      `تمت قراءة الوثيقة "${filename}" وتصنيفها محلياً. تحتوي الوثيقة على نحو ` +
+      `${words.toLocaleString("en-US")} كلمة، وتم ربطها بإدارة ${deptAr}. ` +
+      `${datesNote} أضف مفتاح Anthropic API لإنتاج تحليل تنفيذي كامل مستند إلى الأدلة.`,
     keyInsights: [
       {
-        title: "Local extraction succeeded",
-        detail: `The file was parsed and its text content was extracted (${words.toLocaleString(
+        title: "اكتمل الاستخراج المحلي",
+        detail: `تمت قراءة الملف واستخراج محتواه النصي محلياً (${words.toLocaleString(
           "en-US",
-        )} words). No content was sent to any external service.`,
+        )} كلمة). لم يتم إرسال أي محتوى إلى خدمة خارجية.`,
       },
       {
-        title: "Department classification (heuristic)",
-        detail: `Classified to ${deptEn} using local keyword heuristics. A connected AI model will refine this against internal policy.`,
+        title: "تصنيف الإدارة وفق مؤشرات محلية",
+        detail: `تم تصنيف الوثيقة ضمن إدارة ${deptAr} باستخدام مؤشرات كلمات مفتاحية محلية. عند تفعيل نموذج الذكاء الاصطناعي سيتم تحسين التصنيف مقابل السياسات الداخلية.`,
       },
     ],
     risks: [],
     governanceReview:
-      `Not assessed in demo mode. ${kbNote} Governance review against the internal governance manual and delegation-of-authority matrix requires a connected AI provider.`,
+      `لم يتم إجراء تقييم حوكمي كامل في وضع العرض التجريبي. ${kbNote} تتطلب مراجعة الحوكمة مقابل دليل الحوكمة ومصفوفة تفويض الصلاحيات تفعيل مزود ذكاء اصطناعي.`,
     complianceReview:
-      `Not assessed in demo mode. ${kbNote} Compliance alignment against internal policies and procedures requires a connected AI provider.`,
+      `لم يتم إجراء تقييم امتثال كامل في وضع العرض التجريبي. ${kbNote} يتطلب قياس التوافق مع السياسات والإجراءات الداخلية تفعيل مزود ذكاء اصطناعي.`,
     gapAnalysis: [
       {
-        area: "AI provider configuration",
-        current: "No Anthropic API key configured; running in demo mode.",
+        area: "تهيئة مزود الذكاء الاصطناعي",
+        current: "لم يتم إعداد مفتاح Anthropic API؛ النظام يعمل حالياً في وضع العرض التجريبي.",
         expected:
-          "A configured AI provider to enable evidence-based governance and compliance review against the indexed knowledge base.",
+          "تهيئة مزود ذكاء اصطناعي لتمكين مراجعة الحوكمة والامتثال المستندة إلى الأدلة وقاعدة المعرفة المفهرسة.",
         kbSource: kbSources[0]?.title,
       },
     ],
     rootCauseAnalysis:
-      "Not assessed in demo mode. Root cause analysis requires a connected AI provider.",
+      "لم يتم إجراء تحليل السبب الجذري في وضع العرض التجريبي. يتطلب هذا النوع من التحليل تفعيل مزود ذكاء اصطناعي.",
     swot: null,
     pestel: null,
     kpiOpportunities: [],
     recommendations: [
       {
-        title: "Connect an AI provider to enable evidence-based analysis",
+        title: "تفعيل مزود ذكاء اصطناعي لإنتاج تحليل مستند إلى الأدلة",
         body:
-          "The platform is operating in demo mode. To produce specific, measurable, evidence-backed recommendations grounded in this document and the organization's internal policies, configure ANTHROPIC_API_KEY and index the private knowledge base. Until then, document-specific findings cannot be produced.",
+          "تعمل المنصة حالياً في وضع العرض التجريبي. لإنتاج توصيات محددة وقابلة للقياس ومستندة إلى أدلة من الوثيقة وسياسات المؤسسة الداخلية، يجب إعداد ANTHROPIC_API_KEY وفهرسة قاعدة المعرفة الخاصة. إلى ذلك الحين، لا يمكن إنتاج نتائج تفصيلية خاصة بالوثيقة.",
         evidence: INSUFFICIENT_EVIDENCE,
         isEvidenceSufficient: false,
         specificity: "insufficient_evidence",
@@ -93,9 +93,9 @@ export function demoAnalysis({
     ],
     executiveActions: [
       {
-        title: "Configure the Anthropic API key",
+        title: "إعداد مفتاح Anthropic API",
         description:
-          "Set ANTHROPIC_API_KEY in the environment to switch the platform from demo mode to real Claude analysis.",
+          "أضف ANTHROPIC_API_KEY في متغيرات البيئة لتحويل المنصة من وضع العرض التجريبي إلى تحليل Claude الحقيقي.",
         priority: "medium",
       },
     ],
