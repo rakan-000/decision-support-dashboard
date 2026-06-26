@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Languages,
   Moon,
@@ -10,18 +11,52 @@ import {
   KeyRound,
   CheckCircle2,
   XCircle,
+  Loader2,
 } from "lucide-react";
 import { useLocale } from "@/components/providers/locale-provider";
 import { useTheme } from "@/components/providers/theme-provider";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ProviderStatus } from "@/components/shared/privacy-notice";
 
 export function SettingsView({ status }: { status: ProviderStatus }) {
   const { t, locale, setLocale } = useLocale();
   const { theme, toggle } = useTheme();
+  const [aiCheck, setAiCheck] = useState<{
+    loading: boolean;
+    ok?: boolean;
+    message?: string;
+    mode?: string;
+  }>({ loading: false });
+
+  async function testAiConnection() {
+    setAiCheck({ loading: true });
+    try {
+      const response = await fetch("/api/ai/status", { cache: "no-store" });
+      const payload = (await response.json()) as {
+        ok: boolean;
+        connected: boolean;
+        mode: string;
+        message?: string;
+      };
+      setAiCheck({
+        loading: false,
+        ok: response.ok && payload.connected,
+        mode: payload.mode,
+        message: payload.message,
+      });
+    } catch (error) {
+      setAiCheck({
+        loading: false,
+        ok: false,
+        mode: "error",
+        message: error instanceof Error ? error.message : t("settings.aiTestFailed"),
+      });
+    }
+  }
 
   return (
     <div>
@@ -73,6 +108,13 @@ export function SettingsView({ status }: { status: ProviderStatus }) {
               okText={t("settings.configured")}
               warnText={t("settings.notConfigured")}
             />
+            {status.aiConfigured && status.aiEffort ? (
+              <Row
+                label={`${t("settings.aiEffort")}: ${status.aiEffort}`}
+                ok
+                okText={t("settings.configured")}
+              />
+            ) : null}
             <Row
               label={t("settings.embeddings")}
               ok={!status.embeddingsExternal}
@@ -80,6 +122,35 @@ export function SettingsView({ status }: { status: ProviderStatus }) {
               warnText={t("kb.retrievalExternal")}
               neutralWhenWarn
             />
+            <div className="pt-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={testAiConnection}
+                disabled={aiCheck.loading}
+                className="w-full justify-center"
+              >
+                {aiCheck.loading ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+                {t("settings.aiTest")}
+              </Button>
+              {aiCheck.message ? (
+                <p
+                  className={cn(
+                    "mt-2 rounded-[var(--radius-md)] border px-3 py-2 text-xs leading-relaxed",
+                    aiCheck.ok
+                      ? "border-[color-mix(in_srgb,var(--ok)_30%,var(--border))] text-[var(--ok)]"
+                      : "border-[color-mix(in_srgb,var(--warn)_30%,var(--border))] text-[var(--warn)]",
+                  )}
+                >
+                  {aiCheck.ok
+                    ? t("settings.aiTestConnected")
+                    : aiCheck.mode === "demo"
+                      ? t("settings.aiTestDemo")
+                      : t("settings.aiTestFailed")}
+                  {aiCheck.message ? ` · ${aiCheck.message}` : ""}
+                </p>
+              ) : null}
+            </div>
           </CardContent>
         </Card>
 
@@ -109,7 +180,7 @@ export function SettingsView({ status }: { status: ProviderStatus }) {
         <CardContent>
           <p className="mb-3 text-xs text-[var(--muted-foreground)]">{t("settings.futureDesc")}</p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {["ANTHROPIC_API_KEY", "ANTHROPIC_MODEL", "EMBEDDINGS_PROVIDER", "OPENAI_API_KEY", "DATABASE_URL", "STORAGE_DIR"].map(
+            {["ANTHROPIC_API_KEY", "ANTHROPIC_MODEL", "ANTHROPIC_MAX_OUTPUT_TOKENS", "ANTHROPIC_EFFORT", "EMBEDDINGS_PROVIDER", "OPENAI_API_KEY", "DATABASE_URL", "STORAGE_DIR"].map(
               (k) => (
                 <div
                   key={k}

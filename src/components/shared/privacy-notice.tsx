@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 export type ProviderStatus = {
   aiConfigured: boolean;
   aiModel: string;
+  aiEffort?: string;
   embeddingsExternal: boolean;
   storageLocal: boolean;
 };

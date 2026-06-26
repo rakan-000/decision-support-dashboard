@@ -330,6 +330,11 @@ export const dictionary: Record<string, { ar: string; en: string }> = {
   "settings.configured": { ar: "مهيأ", en: "Configured" },
   "settings.notConfigured": { ar: "غير مهيأ", en: "Not configured" },
   "settings.demoMode": { ar: "وضع العرض التوضيحي", en: "Demo mode" },
+  "settings.aiEffort": { ar: "مستوى التحليل", en: "Analysis effort" },
+  "settings.aiTest": { ar: "اختبار اتصال Claude", en: "Test Claude connection" },
+  "settings.aiTestConnected": { ar: "الاتصال نشط والتحليل الحقيقي جاهز", en: "Connection active and real analysis is ready" },
+  "settings.aiTestDemo": { ar: "لا يوجد مفتاح API، النظام يعمل في وضع العرض التجريبي", en: "No API key configured; system is running in demo mode" },
+  "settings.aiTestFailed": { ar: "فشل اختبار الاتصال بمزود الذكاء الاصطناعي", en: "AI provider connection test failed" },
 
   // Departments
   "departments.title": { ar: "مركز ذكاء الإدارات", en: "Department Intelligence Center" },

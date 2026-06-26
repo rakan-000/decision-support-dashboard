@@ -7,6 +7,8 @@ export const config = {
   ai: {
     apiKey: process.env.ANTHROPIC_API_KEY ?? "",
     model: process.env.ANTHROPIC_MODEL ?? "claude-opus-4-8",
+    maxOutputTokens: Number(process.env.ANTHROPIC_MAX_OUTPUT_TOKENS ?? 16000),
+    effort: process.env.ANTHROPIC_EFFORT ?? "high",
     get isConfigured() {
       return Boolean(process.env.ANTHROPIC_API_KEY);
     },
@@ -35,6 +37,7 @@ export function providerStatus() {
   return {
     aiConfigured: config.ai.isConfigured,
     aiModel: config.ai.model,
+    aiEffort: config.ai.effort,
     embeddingsExternal: config.embeddings.isExternal,
     storageLocal: true,
   };

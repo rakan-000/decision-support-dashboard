@@ -16,6 +16,7 @@ import { SYSTEM_PROMPT, buildUserPrompt } from "./prompt";
 import { demoAnalysis } from "./demo";
 import type { Classification } from "@/lib/parsers/classify";
 import type { KbSourceRef } from "@/lib/db/schema";
+import { config } from "@/lib/config";
 
 export type AnalysisResult = {
   analysis: Analysis;
@@ -64,7 +65,7 @@ export async function runAnalysis(input: AnalyzeInput): Promise<AnalysisResult> 
   const model = getModel();
   const message = await client.messages.create({
     model,
-    max_tokens: 16000,
+    max_tokens: config.ai.maxOutputTokens,
     thinking: { type: "adaptive" },
     system: SYSTEM_PROMPT,
     messages: [
