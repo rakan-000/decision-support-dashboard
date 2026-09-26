@@ -13,7 +13,9 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
-RUN npm run build
+# Build workers use isolated in-memory SQLite databases; the real database is
+# migrated once at runtime before the server starts.
+RUN DI_BUILD=1 npm run build
 
 ENV NODE_ENV=production
 

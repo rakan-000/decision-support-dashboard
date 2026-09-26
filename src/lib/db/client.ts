@@ -1,9 +1,10 @@
 /**
  * Database client (server-only).
  *
- * MVP: better-sqlite3 + Drizzle, with a lazy singleton so Next.js hot-reload
- * does not open multiple connections. Migrations run automatically on first
- * access from the generated ./drizzle folder.
+ * MVP: better-sqlite3 + Drizzle, opened on first query rather than import.
+ * Next.js imports route modules in parallel during builds; opening SQLite and
+ * running migrations at module evaluation can lock the database on Railway.
+ * Production migrations run explicitly via `npm run db:migrate` before start.
  *
  * Enterprise upgrade path: replace the driver below with
  * `drizzle-orm/postgres-js` (or Neon's serverless driver). The exported `db`
@@ -34,33 +35,42 @@ function resolveDbPath(): string {
 }
 
 function createDb(): DB {
-  const dbPath = resolveDbPath();
-  fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+  const buildOnly = process.env.DI_BUILD === "1";
+  const dbPath = buildOnly ? ":memory:" : resolveDbPath();
+  if (!buildOnly) fs.mkdirSync(path.dirname(dbPath), { recursive: true });
 
   const sqlite = new Database(dbPath);
-  sqlite.pragma("journal_mode = WAL");
+  if (!buildOnly) sqlite.pragma("journal_mode = WAL");
   sqlite.pragma("foreign_keys = ON");
 
   const instance = drizzle(sqlite, { schema });
 
-  // Apply migrations if the generated folder exists.
+  // Local development keeps the convenience of automatic migrations.
+  // Production uses the explicit, single-process start:prod migration step.
   const migrationsFolder = path.join(process.cwd(), "drizzle");
-  if (fs.existsSync(migrationsFolder)) {
-    try {
-      migrate(instance, { migrationsFolder });
-    } catch (err) {
-      console.error("[db] migration failed:", err);
-    }
+  if ((buildOnly || process.env.NODE_ENV !== "production") && fs.existsSync(migrationsFolder)) {
+    migrate(instance, { migrationsFolder });
   }
 
   globalForDb.__di_sqlite = sqlite;
   return instance;
 }
 
-export const db: DB = globalForDb.__di_db ?? createDb();
-
-if (process.env.NODE_ENV !== "production") {
-  globalForDb.__di_db = db;
+function getDb(): DB {
+  if (!globalForDb.__di_db) {
+    globalForDb.__di_db = createDb();
+  }
+  return globalForDb.__di_db;
 }
+
+// Preserve the existing typed `db.select(...)` call sites while deferring the
+// connection until a route or server component actually executes a query.
+export const db: DB = new Proxy({} as DB, {
+  get(_target, property) {
+    const instance = getDb();
+    const value = Reflect.get(instance, property, instance);
+    return typeof value === "function" ? value.bind(instance) : value;
+  },
+});
 
 export { schema };
