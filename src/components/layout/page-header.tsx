@@ -65,7 +65,7 @@ export function PageHeader({
               initial={reduce ? false : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.35, ease: EASE }}
-              className="text-sm font-medium text-[var(--muted-foreground)]"
+              className="text-base font-medium leading-relaxed text-[var(--muted-foreground)] sm:text-lg"
             >
               {support}
               {description ? <span className="text-[var(--text-muted)]"> — {description}</span> : null}
@@ -76,7 +76,7 @@ export function PageHeader({
               initial={reduce ? false : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.35, ease: EASE }}
-              className="text-sm leading-relaxed text-[var(--muted-foreground)]"
+              className="text-base leading-relaxed text-[var(--muted-foreground)] sm:text-lg"
             >
               {description}
             </motion.p>

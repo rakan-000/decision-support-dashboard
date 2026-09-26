@@ -56,7 +56,7 @@ function clearPriorAnalysis(documentId: string) {
   db.delete(documentAnalyses).where(eq(documentAnalyses.documentId, documentId)).run();
 }
 
-export async function processDocument(documentId: string): Promise<void> {
+export async function processDocument(documentId: string, provider?: import("@/lib/ai/provider-selection").AiProvider): Promise<void> {
   const doc = db.select().from(documents).where(eq(documents.id, documentId)).get();
   if (!doc) throw new Error("Document not found");
 
@@ -125,6 +125,7 @@ export async function processDocument(documentId: string): Promise<void> {
       classification,
       kbContext: kb.contextText,
       kbSources: kb.sources,
+      provider,
     });
 
     // Persist analysis artifacts (idempotent).

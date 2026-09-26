@@ -19,6 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { ProcessingTimeline, type TimelineStatus } from "@/components/upload/processing-timeline";
 import { cn, formatBytes } from "@/lib/utils";
 import { FILE_TYPE_BY_EXT } from "@/lib/constants";
+import { AiProviderSelector, useAiProvider } from "@/components/providers/ai-provider-selector";
+import type { ProviderStatus } from "@/components/shared/privacy-notice";
 
 type Dept = { id: string; code: string; nameEn: string; nameAr: string };
 
@@ -46,12 +48,14 @@ function isSupported(name: string) {
   return Boolean(FILE_TYPE_BY_EXT[ext]);
 }
 
-export function UploadCenter({ departments }: { departments: Dept[] }) {
+export function UploadCenter({ departments, status }: { departments: Dept[]; status: ProviderStatus }) {
   const { t, locale } = useLocale();
   const [items, setItems] = useState<QueueItem[]>([]);
   const [departmentId, setDepartmentId] = useState<string>("");
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
+  const { provider, setProvider } = useAiProvider(status);
+  const providerReady = provider === "demo" || status.providers.some((item) => item.id === provider && item.configured);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const addFiles = useCallback((fileList: FileList | File[]) => {
@@ -123,10 +127,14 @@ export function UploadCenter({ departments }: { departments: Dept[] }) {
       update(item.localId, { status: "queued", docId });
 
       // 2) Kick off processing (server updates status per stage) and poll.
-      void fetch(`/api/documents/${docId}/process`, { method: "POST" }).catch(() => {});
+      void fetch(`/api/documents/${docId}/process`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider }),
+      }).catch(() => {});
       await pollUntilDone(item.localId, docId);
     },
-    [departmentId, pollUntilDone, update],
+    [departmentId, pollUntilDone, provider, update],
   );
 
   const start = useCallback(async () => {
@@ -212,6 +220,10 @@ export function UploadCenter({ departments }: { departments: Dept[] }) {
             />
           </div>
 
+          <div className="mt-6 border-t border-[var(--border)] pt-6">
+            <AiProviderSelector status={status} provider={provider} onChange={setProvider} />
+          </div>
+
           {/* Department pre-tag + actions */}
           <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <label className="flex items-center gap-2.5 text-sm">
@@ -229,7 +241,7 @@ export function UploadCenter({ departments }: { departments: Dept[] }) {
                 ))}
               </select>
             </label>
-            <Button onClick={start} disabled={busy || pendingCount === 0} size="lg">
+            <Button onClick={start} disabled={busy || pendingCount === 0 || !providerReady} size="lg">
               <Play className="size-4" />
               {t("upload.startAnalysis")}
             </Button>

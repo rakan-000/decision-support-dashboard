@@ -9,6 +9,8 @@ export type ProviderStatus = {
   aiConfigured: boolean;
   aiModel: string;
   aiEffort?: string;
+  defaultProvider: "anthropic" | "gemini" | "openai" | "demo";
+  providers: readonly { id: "anthropic" | "gemini" | "openai"; name: string; configured: boolean; model: string }[];
   embeddingsExternal: boolean;
   storageLocal: boolean;
 };
@@ -70,7 +72,7 @@ export function PrivacyNotice({
           <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
             <Channel
               ok={status.aiConfigured}
-              okLabel={`${t("privacy.aiReady")} · ${status.aiModel}`}
+              okLabel={`${t("privacy.aiReady")} · ${status.providers.find((item) => item.id === status.defaultProvider)?.name ?? ""}`}
               warnLabel={t("privacy.aiNotReady")}
               neutralWhenWarn
             />
@@ -132,7 +134,7 @@ function Channel({
       ) : (
         <AlertTriangle className="size-3.5 shrink-0" style={{ color }} />
       )}
-      <span className="truncate text-xs text-[var(--foreground)]">{ok ? okLabel : warnLabel ?? okLabel}</span>
+      <span className="min-w-0 text-xs leading-snug text-[var(--foreground)]">{ok ? okLabel : warnLabel ?? okLabel}</span>
     </div>
   );
 }

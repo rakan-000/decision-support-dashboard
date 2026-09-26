@@ -15,7 +15,7 @@ This repository contains a working local MVP built with:
 - Local private file storage
 - Real PDF, DOCX, and XLSX parsing
 - Private Knowledge Base ingestion and retrieval
-- Demo AI analysis mode with production-ready Claude integration
+- Selectable Claude, Gemini, OpenAI, and local demo analysis
 - PDF, summary, and PowerPoint export
 - Arabic-first RTL experience with English support
 
@@ -51,9 +51,11 @@ The MVP is privacy-conscious by default:
 - Uploaded files are stored locally under `storage/uploads`.
 - Local parsing is used for PDF, DOCX, and XLSX.
 - No raw files are sent externally by default.
-- Demo analysis mode is used when `ANTHROPIC_API_KEY` is not configured.
-- Real Claude analysis can be enabled later by adding environment variables.
+- Demo analysis is used when no AI provider has both an API key and a model configured.
+- The provider selected in Settings or Upload is used for that browser's next analysis; the choice is stored in browser storage. Selecting an unconfigured provider blocks processing rather than silently switching.
+- With an approved external provider, extracted text and retrieved Knowledge Base context are sent to its API; raw files are not sent.
 - Embeddings are local by default; OpenAI embeddings are optional and configuration-driven.
+- The current deployment has no authentication or role-based access control. Do not upload confidential organizational files to a publicly accessible instance until access controls and provider/storage approvals are in place.
 
 ## Environment Setup
 
@@ -67,16 +69,20 @@ Optional production-style variables:
 
 ```bash
 ANTHROPIC_API_KEY=
-ANTHROPIC_MODEL=claude-opus-4-8
-EMBEDDINGS_PROVIDER=local
+ANTHROPIC_MODEL=
+GEMINI_API_KEY=
+GEMINI_MODEL=
 OPENAI_API_KEY=
+OPENAI_MODEL=
+AI_PROVIDER=
+EMBEDDINGS_PROVIDER=local
 DATABASE_URL=./data/app.db
 STORAGE_DIR=./storage/uploads
 DEFAULT_LOCALE=ar
 MAX_UPLOAD_MB=50
 ```
 
-Do not commit `.env.local` or real API keys.
+Do not commit `.env.local` or real API keys. `AI_PROVIDER` optionally sets the default; each user may change the provider in Settings or Upload. Configure both a key and model ID for each external provider you enable.
 
 ## Local Development
 
@@ -154,7 +160,7 @@ Recommended deployment path:
 - Persistent volume mounted to `/data`.
 - `DATABASE_URL=/data/app.db`.
 - `STORAGE_DIR=/data/uploads`.
-- `ANTHROPIC_API_KEY` configured for real Claude analysis.
+- Configure an approved provider's API key and model ID for real analysis.
 
 See:
 
@@ -167,7 +173,7 @@ The current MVP uses SQLite and local storage. The architecture is prepared for 
 - SQLite can be replaced by PostgreSQL.
 - Local storage can be replaced by S3 or Supabase Storage.
 - Local retrieval can be upgraded to pgvector or managed vector search.
-- Demo analysis automatically switches to real Claude analysis when `ANTHROPIC_API_KEY` is configured.
+- Analysis defaults to the first configured provider (or `AI_PROVIDER` when set); users can explicitly select Claude, Gemini, OpenAI, or demo in Settings and Upload.
 
 ## License
 

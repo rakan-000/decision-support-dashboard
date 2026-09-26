@@ -458,7 +458,10 @@ html[dir="rtl"] .display-statement {
 }
 /* Arabic does not uppercase or letter-space well; relax it. */
 html[dir="rtl"] .micro-label {
-  letter-spacing: 0.06em;
+  font-family: var(--font-arabic-family), sans-serif;
+  font-size: 13px;
+  letter-spacing: 0;
+  line-height: 1.5;
   text-transform: none;
 }
 

@@ -15,7 +15,7 @@ export default async function Page() {
   return (
     <div>
       <UploadHeader status={providerStatus()} />
-      <UploadCenter departments={depts} />
+      <UploadCenter departments={depts} status={providerStatus()} />
     </div>
   );
 }

@@ -7,7 +7,7 @@ import {
   Sun,
   Sparkles,
   HardDrive,
-  Lock,
+  ShieldAlert,
   KeyRound,
   CheckCircle2,
   XCircle,
@@ -21,10 +21,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ProviderStatus } from "@/components/shared/privacy-notice";
+import { AiProviderSelector, useAiProvider } from "@/components/providers/ai-provider-selector";
 
 export function SettingsView({ status }: { status: ProviderStatus }) {
   const { t, locale, setLocale } = useLocale();
   const { theme, toggle } = useTheme();
+  const { provider, setProvider } = useAiProvider(status);
   const [aiCheck, setAiCheck] = useState<{
     loading: boolean;
     ok?: boolean;
@@ -35,7 +37,7 @@ export function SettingsView({ status }: { status: ProviderStatus }) {
   async function testAiConnection() {
     setAiCheck({ loading: true });
     try {
-      const response = await fetch("/api/ai/status", { cache: "no-store" });
+      const response = await fetch(`/api/ai/status?provider=${provider}`, { cache: "no-store" });
       const payload = (await response.json()) as {
         ok: boolean;
         connected: boolean;
@@ -95,26 +97,15 @@ export function SettingsView({ status }: { status: ProviderStatus }) {
           </CardContent>
         </Card>
 
-        {/* AI provider status */}
-        <Card>
+        {/* Provider selection controls the next document analysis in this browser. */}
+        <Card className="lg:col-span-2">
           <CardHeader className="flex-row items-center gap-2">
             <Sparkles className="size-4 text-[var(--muted-foreground)]" />
             <CardTitle>{t("settings.aiStatus")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <Row
-              label={status.aiConfigured ? status.aiModel : t("settings.demoMode")}
-              ok={status.aiConfigured}
-              okText={t("settings.configured")}
-              warnText={t("settings.notConfigured")}
-            />
-            {status.aiConfigured && status.aiEffort ? (
-              <Row
-                label={`${t("settings.aiEffort")}: ${status.aiEffort}`}
-                ok
-                okText={t("settings.configured")}
-              />
-            ) : null}
+            <AiProviderSelector status={status} provider={provider} onChange={(next) => { setProvider(next); setAiCheck({ loading: false }); }} />
+            <p className="text-xs text-[var(--muted-foreground)]">{t("settings.providerScope")}</p>
             <Row
               label={t("settings.embeddings")}
               ok={!status.embeddingsExternal}
@@ -162,10 +153,10 @@ export function SettingsView({ status }: { status: ProviderStatus }) {
           </CardHeader>
           <CardContent className="space-y-2">
             <Row label={t("settings.storageLocal")} ok okText={t("settings.configured")} />
-            <div className="flex items-center gap-2 text-sm text-[var(--foreground)]">
-              <Lock className="size-4 text-[var(--ok)]" />
+            <div className="flex items-start gap-2 text-sm leading-relaxed text-[var(--foreground)]">
+              <ShieldAlert className="mt-0.5 size-4 shrink-0 text-[var(--warn)]" />
               {t("settings.privacyMode")}:{" "}
-              <span className="text-[var(--ok)]">{t("settings.privacyOn")}</span>
+              <span className="text-[var(--warn)]">{t("settings.privacyOn")}</span>
             </div>
           </CardContent>
         </Card>
@@ -180,7 +171,7 @@ export function SettingsView({ status }: { status: ProviderStatus }) {
         <CardContent>
           <p className="mb-3 text-xs text-[var(--muted-foreground)]">{t("settings.futureDesc")}</p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {["ANTHROPIC_API_KEY", "ANTHROPIC_MODEL", "ANTHROPIC_MAX_OUTPUT_TOKENS", "ANTHROPIC_EFFORT", "EMBEDDINGS_PROVIDER", "OPENAI_API_KEY", "DATABASE_URL", "STORAGE_DIR"].map(
+            {["AI_PROVIDER", "ANTHROPIC_API_KEY", "ANTHROPIC_MODEL", "GEMINI_API_KEY", "GEMINI_MODEL", "OPENAI_API_KEY", "OPENAI_MODEL", "EMBEDDINGS_PROVIDER", "DATABASE_URL", "STORAGE_DIR"].map(
               (k) => (
                 <div
                   key={k}

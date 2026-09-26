@@ -6,11 +6,11 @@
 export const config = {
   ai: {
     apiKey: process.env.ANTHROPIC_API_KEY ?? "",
-    model: process.env.ANTHROPIC_MODEL ?? "claude-opus-4-8",
+    model: process.env.ANTHROPIC_MODEL ?? "",
     maxOutputTokens: Number(process.env.ANTHROPIC_MAX_OUTPUT_TOKENS ?? 16000),
     effort: process.env.ANTHROPIC_EFFORT ?? "high",
     get isConfigured() {
-      return Boolean(process.env.ANTHROPIC_API_KEY);
+      return Boolean(process.env.ANTHROPIC_API_KEY && process.env.ANTHROPIC_MODEL);
     },
   },
   embeddings: {
@@ -34,10 +34,19 @@ export const config = {
 
 /** Provider readiness summary surfaced in the UI privacy notice. */
 export function providerStatus() {
+  const providers = [
+    { id: "anthropic", name: "Claude", configured: config.ai.isConfigured, model: config.ai.model },
+    { id: "gemini", name: "Gemini", configured: Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_MODEL), model: process.env.GEMINI_MODEL ?? "" },
+    { id: "openai", name: "ChatGPT", configured: Boolean(process.env.OPENAI_API_KEY && process.env.OPENAI_MODEL), model: process.env.OPENAI_MODEL ?? "" },
+  ] as const;
+  const preferred = providers.find((item) => item.id === process.env.AI_PROVIDER && item.configured);
+  const active = preferred ?? providers.find((item) => item.configured);
   return {
-    aiConfigured: config.ai.isConfigured,
-    aiModel: config.ai.model,
+    aiConfigured: Boolean(active),
+    aiModel: active?.model ?? "",
     aiEffort: config.ai.effort,
+    defaultProvider: (active?.id ?? "demo") as "anthropic" | "gemini" | "openai" | "demo",
+    providers,
     embeddingsExternal: config.embeddings.isExternal,
     storageLocal: true,
   };

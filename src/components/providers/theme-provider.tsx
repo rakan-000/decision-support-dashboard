@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useSyncExternalStore } from "react";
 
 type Theme = "light" | "dark";
 
@@ -11,28 +11,35 @@ const ThemeContext = createContext<{
 
 /** Dark-first: dark is the default experience; light is the opt-in override. */
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const theme = useSyncExternalStore(subscribeTheme, readTheme, (): Theme => "dark");
 
   useEffect(() => {
-    const stored = (localStorage.getItem("theme:v2") as Theme | null) ?? "dark";
-    setTheme(stored);
-    document.documentElement.classList.toggle("light", stored === "light");
-    document.documentElement.classList.toggle("dark", stored === "dark");
-  }, []);
+    document.documentElement.classList.toggle("light", theme === "light");
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
 
-  const toggle = useCallback(() => {
-    setTheme((prev) => {
-      const next = prev === "dark" ? "light" : "dark";
-      localStorage.setItem("theme:v2", next);
-      document.documentElement.classList.toggle("light", next === "light");
-      document.documentElement.classList.toggle("dark", next === "dark");
-      return next;
-    });
-  }, []);
+  const toggle = () => {
+    const next = readTheme() === "dark" ? "light" : "dark";
+    localStorage.setItem("theme:v2", next);
+    window.dispatchEvent(new Event("theme-change"));
+  };
 
   return (
     <ThemeContext.Provider value={{ theme, toggle }}>{children}</ThemeContext.Provider>
   );
+}
+
+function readTheme(): Theme {
+  return localStorage.getItem("theme:v2") === "light" ? "light" : "dark";
+}
+
+function subscribeTheme(callback: () => void) {
+  window.addEventListener("storage", callback);
+  window.addEventListener("theme-change", callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener("theme-change", callback);
+  };
 }
 
 export function useTheme() {

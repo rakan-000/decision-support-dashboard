@@ -1,9 +1,8 @@
 /**
  * Heuristic, fully-local document classification (no external AI).
  *
- * This runs in the "classifying" stage to populate sensible defaults
- * (department, priority, dates, owner, language). The AI pipeline in the next
- * task can refine or override these with evidence-based reasoning.
+ * This runs in the "classifying" stage to populate evidence-backed defaults
+ * (department, priority, dates, owner, language).
  */
 import "server-only";
 import type { Priority } from "@/lib/db/schema";
@@ -52,7 +51,7 @@ function extractDates(text: string): string[] {
     found.add(m[0]);
   }
   // Year only
-  for (const m of text.matchAll(/\b(20\d{2})\b/g)) {
+  for (const m of text.matchAll(/(?<![\d/.-])(20\d{2})(?![\d/.-])/g)) {
     found.add(m[1]);
   }
   return Array.from(found).slice(0, 12);
@@ -85,17 +84,18 @@ export function classifyDocument(
     }
   }
 
-  // Owner: first meaningful non-empty line, capped.
-  const firstLine = text
+  // An unlabeled heading or spreadsheet sheet name is not evidence of ownership.
+  const ownerLine = text
     .split(/\r?\n/)
-    .map((l) => l.trim())
-    .find((l) => l.length > 3 && l.length < 120);
+    .map((line) => line.trim())
+    .find((line) => /^(?:document\s+owner|owner|responsible\s+(?:person|unit|department)|مالك\s+الوثيقة|المالك|المسؤول|الجهة\s+المسؤولة)\s*[:：-]\s*\S/i.test(line));
+  const owner = ownerLine?.replace(/^.*?[:：-]\s*/, "").trim() ?? null;
 
   return {
     departmentCode: bestDept,
     priority,
     dates: extractDates(`${filename} ${text}`),
-    owner: firstLine ?? null,
+    owner: owner && owner.length <= 120 ? owner : null,
     language: fallbackLanguage,
   };
 }

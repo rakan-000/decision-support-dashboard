@@ -160,43 +160,38 @@ export function HomeView({
             </motion.div>
           </div>
 
-          {/* Network column */}
-          <div className="relative h-[360px] sm:h-[440px] lg:h-[520px]">
+          {/* Department network: six equal, navigable intelligence hubs. */}
+          <div className="relative min-h-[420px] overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--surface-50)] p-4 sm:min-h-[460px] sm:p-6 lg:min-h-[520px]">
             <DataStream className="absolute inset-0 size-full" />
-
-            <span className="micro-label absolute top-0 !text-[10px] text-[var(--text-muted)] ltr:left-0 rtl:right-0">
-              {t("hero.network")}
-            </span>
-
-            {/* Department nodes — active intelligence hubs feeding the core */}
-            <div className="pointer-events-none absolute inset-0">
-              {DEPARTMENTS.map((d, i) => {
-                const top = 14 + i * 13.5; // distributed column near the core
-                return (
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[var(--surface-50)]/40 via-transparent to-[var(--surface-50)]/90" />
+            <div className="relative flex h-full min-h-[388px] flex-col sm:min-h-[412px] lg:min-h-[472px]">
+              <div className="flex items-center justify-between gap-4">
+                <span className="micro-label text-[var(--primary-500)]">{t("hero.network")}</span>
+                <span className="font-mono text-sm text-[var(--text-muted)]">01 / 06</span>
+              </div>
+              <div className="mt-auto grid grid-cols-2 gap-2 sm:gap-3">
+                {DEPARTMENTS.map((d, i) => (
                   <motion.div
                     key={d.code}
-                    initial={{ opacity: 0, x: 12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.6, delay: 1.1 + i * 0.09, ease: EASE }}
-                    className="absolute ltr:left-1 rtl:right-1"
-                    style={{ top: `${top}%` }}
+                    initial={{ opacity: 0, y: 18 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.55, delay: 0.7 + i * 0.07, ease: EASE }}
                   >
                     <Link
                       href={`/departments/${d.code}`}
-                      className="group/node pointer-events-auto inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface-50)]/90 px-3 py-1.5 backdrop-blur-sm transition-all duration-300 hover:border-[var(--primary-500)] hover:bg-[var(--surface-100)] hover:shadow-[var(--glow-primary)] ltr:hover:translate-x-1 rtl:hover:-translate-x-1"
+                      className="group/node flex min-h-24 flex-col justify-between rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface-0)]/90 p-3 backdrop-blur-md transition-[border-color,background-color,box-shadow,transform] duration-300 hover:-translate-y-1 hover:border-[var(--primary-500)] hover:bg-[var(--surface-100)] hover:shadow-[var(--glow-soft)] focus-visible:outline-2 focus-visible:outline-[var(--primary-500)] motion-reduce:transform-none sm:min-h-28 sm:p-4"
                     >
-                      <span className="relative flex size-1.5">
-                        <span className="absolute inline-flex size-full rounded-full bg-[var(--primary-500)] opacity-0 transition-opacity duration-300 group-hover/node:animate-pulse-glow group-hover/node:opacity-70" />
-                        <span className="relative inline-flex size-1.5 rounded-full bg-[var(--primary-500)] transition-transform duration-300 group-hover/node:scale-150" />
+                      <span className="flex items-center justify-between gap-2">
+                        <span className="font-mono text-xs font-semibold text-[var(--primary-500)]">{d.code}</span>
+                        <ArrowUpRight className="size-4 text-[var(--text-muted)] transition-[transform,color] duration-300 group-hover/node:-translate-y-0.5 group-hover/node:translate-x-0.5 group-hover/node:text-[var(--primary-500)] flip-rtl" />
                       </span>
-                      <span className="text-xs text-[var(--text-secondary)] transition-colors duration-300 group-hover/node:text-[var(--foreground)]">
+                      <span className="text-sm font-semibold leading-snug text-[var(--foreground)] sm:text-base">
                         {locale === "ar" ? d.name_ar : d.name_en}
                       </span>
-                      <ArrowUpRight className="size-3 text-[var(--text-muted)] opacity-0 transition-opacity duration-300 group-hover/node:opacity-100 flip-rtl" />
                     </Link>
                   </motion.div>
-                );
-              })}
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -209,10 +204,10 @@ export function HomeView({
           {stats.map((s, i) => (
             <div
               key={s.label}
-              className="group border-[var(--border)] py-8 ltr:border-r ltr:last:border-r-0 rtl:border-l rtl:last:border-l-0 max-lg:[&:nth-child(odd)]:ps-0 lg:px-8 lg:first:ps-0"
+              className="group min-w-0 border-[var(--border)] px-3 py-7 first:ps-0 last:pe-0 sm:px-5 lg:px-8 lg:py-8 lg:first:ps-0 lg:last:pe-0 ltr:border-r ltr:last:border-r-0 rtl:border-l rtl:last:border-l-0"
             >
               <MaskRise delay={0.08 * i}>
-                <p className="display-statement text-5xl text-[var(--foreground)] transition-colors duration-300 group-hover:text-[var(--primary-500)] sm:text-6xl lg:text-7xl">
+                <p className="display-statement break-words text-4xl tabular-nums text-[var(--foreground)] transition-colors duration-300 group-hover:text-[var(--primary-500)] sm:text-5xl xl:text-6xl">
                   <CountUp value={s.value} suffix={s.suffix} />
                 </p>
               </MaskRise>
