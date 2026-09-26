@@ -167,7 +167,7 @@ export function HomeView({
             <div className="relative flex h-full min-h-[388px] flex-col sm:min-h-[412px] lg:min-h-[472px]">
               <div className="flex items-center justify-between gap-4">
                 <span className="micro-label text-[var(--primary-500)]">{t("hero.network")}</span>
-                <span className="font-mono text-sm text-[var(--text-muted)]">01 / 06</span>
+                <span dir="ltr" className="font-mono text-sm text-[var(--text-muted)]">01 / 06</span>
               </div>
               <div className="mt-auto grid grid-cols-2 gap-2 sm:gap-3">
                 {DEPARTMENTS.map((d, i) => (

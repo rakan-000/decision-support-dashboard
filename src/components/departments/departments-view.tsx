@@ -25,7 +25,7 @@ export function DepartmentsView({ stats }: { stats: DepartmentStat[] }) {
                 <span className="pointer-events-none absolute inset-y-0 w-1 bg-[var(--primary-500)] opacity-0 transition-opacity duration-300 group-hover:opacity-100 ltr:left-0 rtl:right-0" />
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <span className="font-mono text-sm tracking-widest text-[var(--primary-500)]">{String(index + 1).padStart(2, "0")} / {department.code}</span>
+                    <span dir="ltr" className="inline-block font-mono text-sm tracking-widest text-[var(--primary-500)]">{String(index + 1).padStart(2, "0")} / {department.code}</span>
                     <h2 className="mt-4 text-2xl font-semibold leading-snug text-[var(--foreground)] sm:text-3xl">
                       {locale === "ar" ? department.nameAr : department.nameEn}
                     </h2>
